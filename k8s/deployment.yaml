@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multibank-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: multibank-backend
+  template:
+    metadata:
+      labels:
+        app: multibank-backend
+    spec:
+      containers:
+      - name: backend
+        image: multibank-backend:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3001
+        env:
+        - name: PORT
+          value: "3001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multibank-backend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: multibank-backend
+  ports:
+  - protocol: TCP
+    port: 3001
+    targetPort: 3001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multibank-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: multibank-frontend
+  template:
+    metadata:
+      labels:
+        app: multibank-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: multibank-frontend:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multibank-frontend-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: multibank-frontend
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 80
